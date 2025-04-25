@@ -29,10 +29,28 @@ def main():
     parser.add_argument(
         "--duration", type=int, default=10, help="Seconds to capture DNS traffic"
     )
+    parser.add_argument(
+        "--test", action="store_true",
+        help="Emit test devices and logs instead of performing a real scan"
+    )
     args = parser.parse_args()
 
-    devices = scan_network(args.subnet)
-    dns_logs = capture_dns_traffic(duration=args.duration)
+    # test mode: emit dummy data
+    if args.test:
+        devices = [
+            {
+                "ip": "192.168.0.99",
+                "mac": "AA:BB:CC:DD:EE:FF",
+                "vendor": "TestCo",
+                "type": "Test",
+                "always_listening": False,
+            }
+        ]
+        dns_logs = {"192.168.0.99": ["example.com", "dummy.test"]}
+    else:
+        devices = scan_network(args.subnet)
+        dns_logs = capture_dns_traffic(duration=args.duration)
+
     payload = {"devices": devices, "dns_logs": dns_logs}
 
     try:
