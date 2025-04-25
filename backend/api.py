@@ -53,5 +53,27 @@ def get_report():
     return jsonify(last_report)
 
 
+@app.route("/agent/test", methods=["GET"])
+def agent_test():
+    try:
+        # emit and score dummy test device
+        dummy = {
+            "ip": "192.168.0.99",
+            "mac": "AA:BB:CC:DD:EE:FF",
+            "vendor": "TestCo",
+            "type": "Test",
+            "always_listening": False,
+        }
+        devices = [dummy]
+        # use dict entries for scoring function
+        dns_logs = {dummy["ip"]: [{"domain": "example.com"}, {"domain": "dummy.test"}]}
+        results = [score_device(d, dns_logs) for d in devices]
+        global last_report
+        last_report = results
+        return jsonify({"status": "ok", "devices": devices})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
