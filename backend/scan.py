@@ -17,12 +17,14 @@ def scan_network(subnet="192.168.1.0/24"):
         try:
             from scapy.all import ARP, Ether, srp
         except ImportError:
-            raise RuntimeError(
-                "nmap not found and scapy not installed; please install one of them"
+            return []
+        try:
+            ans, _ = srp(
+                Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=subnet), timeout=2, verbose=0
             )
-        ans, _ = srp(
-            Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=subnet), timeout=2, verbose=0
-        )
+        except Exception:
+            # scapy layer 2 unavailable or other error
+            return []
         entries = [
             f"{recv.psrc}\nMAC Address: {recv.hwsrc} (Unknown)" for sent, recv in ans
         ]

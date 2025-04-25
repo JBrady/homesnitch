@@ -1,7 +1,7 @@
-from flask import Flask, jsonify
-from scan import scan_network
-from privacy_scoring import score_device
-from traffic_monitor import capture_dns_traffic
+from flask import Flask, jsonify, request
+from backend.scan import scan_network
+from backend.privacy_scoring import score_device
+from backend.traffic_monitor import capture_dns_traffic
 
 app = Flask(__name__)
 
@@ -25,6 +25,15 @@ def traffic_endpoint():
     """Return raw DNS traffic logs captured for detailed view."""
     logs = capture_dns_traffic(duration=10)
     return jsonify(logs)
+
+
+@app.route("/report", methods=["POST"])
+def report_endpoint():
+    data = request.get_json() or {}
+    devices = data.get("devices", [])
+    dns_logs = data.get("dns_logs", {})
+    results = [score_device(d, dns_logs) for d in devices]
+    return jsonify(results)
 
 
 if __name__ == "__main__":

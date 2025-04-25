@@ -8,7 +8,11 @@ def capture_dns_traffic(duration=10):
         "-Y", "dns.qry.name", "-T", "fields",
         "-e", "ip.src", "-e", "dns.qry.name"
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError:
+        # tshark not installed: skip logging
+        return {}
     logs = {}
     for line in result.stdout.splitlines():
         parts = line.split("\t")
