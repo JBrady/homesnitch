@@ -9,7 +9,8 @@ export default defineConfig({
     proxy: {
       '/scan': 'http://localhost:5000',
       '/scan_with_score': 'http://localhost:5000',
-      '/traffic': 'http://localhost:5000'
+      '/traffic': 'http://localhost:5000',
+      '/report': 'http://localhost:5000'
     }
   }
 });

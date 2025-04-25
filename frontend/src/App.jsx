@@ -7,7 +7,7 @@ import { fetchScanResults } from "./utils/api";
 export default function App() {
 	const [devices, setDevices] = useState([]);
 	const [selectedDevice, setSelectedDevice] = useState(null);
-	const loadDevices = async () => setDevices(await fetchScanResults("/scan_with_score"));
+	const loadDevices = async () => setDevices(await fetchScanResults("/report"));
 	useEffect(() => { loadDevices(); }, []);
 	return (
 		<div className="p-4">

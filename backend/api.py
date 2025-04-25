@@ -5,6 +5,7 @@ from backend.traffic_monitor import capture_dns_traffic
 
 app = Flask(__name__)
 
+last_report = []
 
 @app.route("/scan")
 def scan_endpoint():
@@ -33,7 +34,23 @@ def report_endpoint():
     devices = data.get("devices", [])
     dns_logs = data.get("dns_logs", {})
     results = [score_device(d, dns_logs) for d in devices]
+    global last_report
+    last_report = results
     return jsonify(results)
+
+
+@app.route("/report", methods=["GET"])
+def get_report():
+    if not last_report:
+        dummy = {
+            "ip": "192.168.0.2",
+            "mac": "AA:BB:CC:DD:EE:FF",
+            "vendor": "Dummy",
+            "type": "Test",
+            "always_listening": False,
+        }
+        return jsonify([dummy])
+    return jsonify(last_report)
 
 
 if __name__ == "__main__":
