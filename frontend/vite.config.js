@@ -7,12 +7,12 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/scan': 'http://localhost:5000',
-      '/scan_with_score': 'http://localhost:5000',
-      '/traffic': 'http://localhost:5000',
-      '/report': 'http://localhost:5000',
-      '/agent': 'http://localhost:5000',
-      '/auth': 'http://localhost:5000'
+      '/scan': 'http://127.0.0.1:5000',
+      '/scan_with_score': 'http://127.0.0.1:5000',
+      '/traffic': 'http://127.0.0.1:5000',
+      '/report': 'http://127.0.0.1:5000',
+      '/agent': 'http://127.0.0.1:5000',
+      '/auth': 'http://127.0.0.1:5000'
     }
   }
 });

@@ -35,6 +35,7 @@ Thumbs.db
 # Environment files
 .env
 .env.*
+backend/keys/*.pem
 
 # VSCode workspace files
 *.code-workspace
