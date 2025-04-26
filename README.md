@@ -56,6 +56,12 @@
    > **Environment variables:**
    > - `FLASK_APP=backend.api`
    > - `FRONTEND_ORIGIN=http://localhost:3000`
+   > **JWT key setup:**
+   > - To generate a new EC key-pair for JWT, run:
+   >   ```bash
+   >   python backend/generate_keys.py
+   >   ```
+   > - This creates `backend/keys/ec_private.pem` and `ec_public.pem` (ignored by Git).
 
 3. **Run backend**
    ```powershell
