@@ -26,13 +26,15 @@ db.init_app(app)
 migrate.init_app(app, db)
 jwt.init_app(app)
 limiter.init_app(app)
-talisman.init_app(app)
 cors.init_app(
     app,
     resources={
         r"/*": {"origins": os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")}
     },
 )
+talisman.init_app(
+    app, force_https=False, strict_transport_security=False
+)  # disable HTTPS redirect during dev
 if app.debug:
     with app.app_context():
         db.create_all()
@@ -45,11 +47,15 @@ def scan_endpoint():
 
 @app.route("/scan_with_score")
 def scan_with_score():
-    # capture DNS traffic logs for scoring
-    traffic_logs = capture_dns_traffic(duration=10)
-    devices = scan_network()
-    results = [score_device(d, traffic_logs) for d in devices]
-    return jsonify(results)
+    try:
+        # capture DNS traffic logs for scoring
+        traffic_logs = capture_dns_traffic(duration=10)
+        devices = scan_network()
+        results = [score_device(d, traffic_logs) for d in devices]
+        return jsonify(results)
+    except Exception as e:
+        app.logger.exception("Error in scan_with_score")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/traffic")
