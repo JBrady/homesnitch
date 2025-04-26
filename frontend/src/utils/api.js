@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 axios.defaults.withCredentials = true;
 
 export async function fetchScanResults(endpoint) {
-  const res = await axios.get(endpoint);
+  const res = await axios.get(endpoint, { headers: { 'X-CSRF-TOKEN': Cookies.get('csrf_access_token') } });
   if (res.status !== 200) throw new Error('Network response not ok');
   return res.data;
 }
