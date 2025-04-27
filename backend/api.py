@@ -29,12 +29,24 @@ limiter.init_app(app)
 cors.init_app(
     app,
     resources={
-        r"/*": {"origins": os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")}
+        r"/*": {"origins": os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"), "supports_credentials": True}
     },
 )
+# HTTP security headers via Flask-Talisman
 talisman.init_app(
-    app, force_https=False, strict_transport_security=False
-)  # disable HTTPS redirect during dev
+    app,
+    force_https=not app.debug,
+    strict_transport_security=not app.debug,
+    content_security_policy={
+        "default-src": ["'self'"],
+        "script-src": ["'self'"],
+        "connect-src": ["'self'", os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")],
+        "img-src": ["'self'"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+    },
+    frame_options="DENY",
+    referrer_policy="no-referrer",
+)
 if app.debug:
     with app.app_context():
         db.create_all()
