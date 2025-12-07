@@ -56,6 +56,9 @@
    > **Environment variables:**
    > - `FLASK_APP=backend.api`
    > - `FRONTEND_ORIGIN=http://localhost:3000`
+   > - `NMAP_PATH=/usr/bin/nmap` (Optional: Path to Nmap executable)
+   > - `TSHARK_PATH=/usr/bin/tshark` (Optional: Path to Tshark executable)
+   >
    > **JWT key setup:**
    > - To generate a new EC key-pair for JWT, run:
    >   ```bash
@@ -86,12 +89,23 @@
   npm run test
   ```
 
-- **Backend tests:** (TBD)
+- **Backend tests:**
+  ```bash
+  cd backend
+  pip install pytest
+  export PYTHONPATH=$PYTHONPATH:.  # Ensure backend module is in path
+  pytest tests/
+  ```
+
+- **CI/CD:**
+  A GitHub Actions workflow is set up to run both frontend and backend tests on every push and pull request to `main` or `master` branches.
 
 ## Project Structure
 
 ```
 home_snitch/
+├── .github/
+│   └── workflows/        # GitHub Actions CI/CD workflows
 ├── backend/
 │   ├── api.py            # Flask app & routes
 │   ├── traffic_monitor.py  # DNS capture & network scan logic
