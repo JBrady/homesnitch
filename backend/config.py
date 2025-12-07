@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import secrets
+import shutil
 
 # Load .env variables
 load_dotenv()
@@ -14,6 +15,14 @@ class Config:
     if os.getenv("DATABASE_URI") and os.getenv("DATABASE_URI").startswith("postgres"):
         SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # External Tools Configuration
+    NMAP_PATH = os.getenv("NMAP_PATH", shutil.which("nmap") or "nmap")
+    TSHARK_PATH = os.getenv("TSHARK_PATH", shutil.which("tshark") or "tshark")
+    PRIVACY_DB_PATH = os.getenv(
+        "PRIVACY_DB_PATH",
+        os.path.join(os.path.dirname(__file__), "privacy_db.json")
+    )
 
     # JWT Configuration
     # Post-Quantum Security: Using HS512 (Symmetric) instead of vulnerable ECDSA

@@ -1,4 +1,6 @@
 from unittest.mock import patch, MagicMock
+from backend.scan import scan_network
+import subprocess
 
 def test_scan_endpoint(client):
     # Mock scan_network to return predictable data
@@ -50,3 +52,37 @@ def test_report_creation_and_retrieval(client):
     data = get_resp.get_json()
     assert len(data) == 1
     assert data[0]["ip"] == "10.0.0.1"
+
+def test_scan_network_uses_config(app):
+    # Test that scan_network uses the configured NMAP_PATH
+    with app.app_context():
+        app.config["NMAP_PATH"] = "/custom/nmap"
+
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value.stdout = "Nmap scan report for ..."
+
+            scan_network()
+
+            # Verify subprocess was called with custom path
+            args, _ = mock_run.call_args
+            assert args[0][0] == "/custom/nmap"
+
+def test_scan_network_nmap_fail_fallback(app):
+    with app.app_context():
+        # Simulate Nmap failure
+        with patch("subprocess.run") as mock_run:
+            mock_run.side_effect = FileNotFoundError
+
+            # Mock Scapy fallback
+            with patch("scapy.all.srp") as mock_srp:
+                # Mock scapy response: list of (sent, recv) tuples
+                # recv object needs psrc and hwsrc attributes
+                mock_recv = MagicMock()
+                mock_recv.psrc = "192.168.1.20"
+                mock_recv.hwsrc = "AA:AA:AA:AA:AA:AA"
+                mock_srp.return_value = ([(None, mock_recv)], None)
+
+                devices = scan_network()
+
+                assert len(devices) == 1
+                assert devices[0]["ip"] == "192.168.1.20"

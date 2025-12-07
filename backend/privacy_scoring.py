@@ -1,14 +1,32 @@
 import json
 import os
+import logging
+from flask import current_app
 
-# Load privacy database once at module level
-DB_PATH = os.path.join(os.path.dirname(__file__), "privacy_db.json")
+logger = logging.getLogger(__name__)
+
+# Cache for loaded DB
+_PRIVACY_DB_CACHE = None
+
+def get_db_path():
+    try:
+        return current_app.config.get("PRIVACY_DB_PATH")
+    except RuntimeError:
+        # Fallback for when running outside app context (e.g. direct script execution)
+        return os.path.join(os.path.dirname(__file__), "privacy_db.json")
 
 def load_privacy_db():
+    global _PRIVACY_DB_CACHE
+    if _PRIVACY_DB_CACHE is not None:
+        return _PRIVACY_DB_CACHE
+
+    db_path = get_db_path()
     try:
-        with open(DB_PATH, "r") as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+        with open(db_path, "r") as f:
+            _PRIVACY_DB_CACHE = json.load(f)
+            return _PRIVACY_DB_CACHE
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logger.error(f"Failed to load privacy DB from {db_path}: {e}")
         # Fallback empty structure
         return {
             "risk_rules": {"high_risk_types": [], "suspicious_domains": []},
@@ -17,11 +35,9 @@ def load_privacy_db():
             "oui_table": {}
         }
 
-PRIVACY_DB = load_privacy_db()
-
 def get_oui_db():
     """Helper to access the OUI table portion of the DB."""
-    full_db = PRIVACY_DB
+    full_db = load_privacy_db()
     # Support both old format (direct mapping) and new format (nested under "oui_table")
     if "oui_table" in full_db:
         return full_db["oui_table"]
@@ -31,8 +47,10 @@ def get_suggestions(dtype, vendor):
     """Find matching suggestions based on rules."""
     suggestions = []
 
+    db = load_privacy_db()
+
     # Iterate through rules in the DB
-    for rule in PRIVACY_DB.get("suggestions", []):
+    for rule in db.get("suggestions", []):
         criteria = rule.get("criteria", {})
 
         # Check if rule matches
@@ -46,7 +64,7 @@ def get_suggestions(dtype, vendor):
             suggestions.extend(rule.get("tips", []))
 
     if not suggestions:
-        return PRIVACY_DB.get("default_suggestion", ["Check vendor privacy guide"])
+        return db.get("default_suggestion", ["Check vendor privacy guide"])
 
     # Deduplicate while preserving order
     seen = set()
@@ -59,7 +77,8 @@ def score_device(device, traffic_logs):
     vendor_raw = device.get("vendor", "unknown")
     vendor_lower = vendor_raw.lower()
 
-    rules = PRIVACY_DB.get("risk_rules", {})
+    db = load_privacy_db()
+    rules = db.get("risk_rules", {})
 
     # Check device type risk
     if dtype in rules.get("high_risk_types", []):
