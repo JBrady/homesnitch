@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+import secrets
 
 # Load .env variables
 load_dotenv()
@@ -7,7 +8,7 @@ load_dotenv()
 
 class Config:
     # General Config
-    SECRET_KEY = os.getenv("SECRET_KEY", "change-me")
+    SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URI", "sqlite:///homesnitch.db")
     # For local Postgres via Docker Compose
     if os.getenv("DATABASE_URI") and os.getenv("DATABASE_URI").startswith("postgres"):
@@ -15,22 +16,11 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # JWT Configuration
-    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "ES256")
-    JWT_PRIVATE_KEY = os.getenv("JWT_PRIVATE_KEY")  # PEM-encoded EC private key
-    JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")  # PEM-encoded EC public key
+    # Post-Quantum Security: Using HS512 (Symmetric) instead of vulnerable ECDSA
+    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS512")
 
-    # Load EC keys from backend/keys if env vars not set
-    key_dir = os.path.join(os.path.dirname(__file__), "keys")
-    priv_path = os.getenv(
-        "JWT_PRIVATE_KEY_PATH", os.path.join(key_dir, "ec_private.pem")
-    )
-    if not JWT_PRIVATE_KEY and os.path.exists(priv_path):
-        with open(priv_path, "r") as f:
-            JWT_PRIVATE_KEY = f.read()
-    pub_path = os.getenv("JWT_PUBLIC_KEY_PATH", os.path.join(key_dir, "ec_public.pem"))
-    if not JWT_PUBLIC_KEY and os.path.exists(pub_path):
-        with open(pub_path, "r") as f:
-            JWT_PUBLIC_KEY = f.read()
+    # Generate a strong secret key for JWT signing if not provided
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", secrets.token_hex(64))
 
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_ACCESS_COOKIE_NAME = "access_token"
@@ -58,3 +48,9 @@ class Config:
 
     # CORS settings
     FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+
+class TestConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    WTF_CSRF_ENABLED = False
+    JWT_COOKIE_CSRF_PROTECT = False  # Simplify testing
