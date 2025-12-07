@@ -59,12 +59,9 @@
    > - `NMAP_PATH=/usr/bin/nmap` (Optional: Path to Nmap executable)
    > - `TSHARK_PATH=/usr/bin/tshark` (Optional: Path to Tshark executable)
    >
-   > **JWT key setup:**
-   > - To generate a new EC key-pair for JWT, run:
-   >   ```bash
-   >   python backend/generate_keys.py
-   >   ```
-   > - This creates `backend/keys/ec_private.pem` and `ec_public.pem` (ignored by Git).
+   > **JWT Configuration:**
+   > - By default, the application uses **HS512** (Symmetric) for post-quantum security.
+   > - A `JWT_SECRET_KEY` is automatically generated if not provided in `.env`.
 
 3. **Run backend**
    ```powershell
