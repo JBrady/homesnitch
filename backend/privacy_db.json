@@ -1,1 +1,42 @@
-{"00:1A:11": {"vendor": "Amazon", "type": "Speaker"}, "D0:73:D5": {"vendor": "Wyze Labs", "type": "Camera"}}
+{
+  "oui_table": {
+    "00:1A:11": { "vendor": "Amazon", "type": "Speaker" },
+    "D0:73:D5": { "vendor": "Wyze Labs", "type": "Camera" }
+  },
+  "risk_rules": {
+    "high_risk_types": ["camera", "microphone", "speaker"],
+    "suspicious_domains": ["amazon", "roku", "wyze", "nest", "google"]
+  },
+  "suggestions": [
+    {
+      "criteria": { "type": "speaker", "vendor": "amazon" },
+      "tips": [
+        "Mute mic when not in use",
+        "Block metrics.amazon.com",
+        "Review Alexa Privacy Settings"
+      ]
+    },
+    {
+      "criteria": { "type": "camera", "vendor": "wyze labs" },
+      "tips": [
+        "Block upload.wyze.com in firewall",
+        "Update Wyze privacy settings"
+      ]
+    },
+    {
+      "criteria": { "type": "smart tv" },
+      "tips": [
+        "Review Roku privacy settings",
+        "Block logs.rkuservice.net"
+      ]
+    },
+    {
+      "criteria": { "vendor": "roku" },
+      "tips": [
+        "Review Roku privacy settings",
+        "Block logs.rkuservice.net"
+      ]
+    }
+  ],
+  "default_suggestion": ["Check vendor privacy guide"]
+}

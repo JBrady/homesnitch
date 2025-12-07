@@ -29,10 +29,9 @@ def scan_network(subnet="192.168.1.0/24"):
             f"{recv.psrc}\nMAC Address: {recv.hwsrc} (Unknown)" for sent, recv in ans
         ]
 
-    # enrich with type from privacy_db.json (load relative to this file)
-    db_path = os.path.join(os.path.dirname(__file__), "privacy_db.json")
-    with open(db_path) as f:
-        db = json.load(f)
+    # enrich with type from privacy_scoring (which loads privacy_db.json)
+    from backend.privacy_scoring import get_oui_db
+    oui_db = get_oui_db()
 
     for entry in entries:
         lines = entry.strip().splitlines()
@@ -45,7 +44,7 @@ def scan_network(subnet="192.168.1.0/24"):
         )
         # lookup prefix (first 3 octets)
         prefix = mac.upper()[0:8]
-        profile = db.get(prefix)
+        profile = oui_db.get(prefix)
         dtype = profile["type"] if profile else "Unknown"
         vendor = profile["vendor"] if profile else vendor
         devices.append(
