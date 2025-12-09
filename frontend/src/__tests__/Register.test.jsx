@@ -19,13 +19,12 @@ describe('Register', () => {
 
     render(<Register />, { wrapper });
 
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
 
-    await userEvent.type(screen.getByPlaceholderText('Email'), 'new@example.com');
-    await userEvent.type(screen.getByPlaceholderText('Password'), 'securepass');
+    await userEvent.type(screen.getByLabelText('Email'), 'new@example.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'securepass');
 
-    // Select the button specifically to avoid conflict with the heading
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
     await waitFor(() => {
@@ -46,10 +45,9 @@ describe('Register', () => {
 
     render(<Register />, { wrapper });
 
-    await userEvent.type(screen.getByPlaceholderText('Email'), 'exists@example.com');
-    await userEvent.type(screen.getByPlaceholderText('Password'), 'password');
+    await userEvent.type(screen.getByLabelText('Email'), 'exists@example.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'password');
 
-    // Select the button specifically to avoid conflict with the heading
     await userEvent.click(screen.getByRole('button', { name: 'Register' }));
 
     expect(await screen.findByText('User already exists')).toBeInTheDocument();
