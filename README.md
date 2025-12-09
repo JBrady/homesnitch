@@ -62,6 +62,7 @@
    > **JWT Configuration:**
    > - By default, the application uses **HS512** (Symmetric) for post-quantum security.
    > - A `JWT_SECRET_KEY` is automatically generated if not provided in `.env`.
+   > - **Note:** For persistent sessions across restarts, set `JWT_SECRET_KEY` in your `.env` file.
 
 3. **Run backend**
    ```powershell

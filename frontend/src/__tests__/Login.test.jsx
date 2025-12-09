@@ -19,13 +19,12 @@ describe('Login', () => {
 
     render(<Login />, { wrapper });
 
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
 
-    await userEvent.type(screen.getByPlaceholderText('Email'), 'test@example.com');
-    await userEvent.type(screen.getByPlaceholderText('Password'), 'password123');
+    await userEvent.type(screen.getByLabelText('Email'), 'test@example.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'password123');
 
-    // Select the button specifically to avoid conflict with the heading
     await userEvent.click(screen.getByRole('button', { name: 'Sign In' }));
 
     await waitFor(() => {
@@ -46,10 +45,9 @@ describe('Login', () => {
 
     render(<Login />, { wrapper });
 
-    await userEvent.type(screen.getByPlaceholderText('Email'), 'wrong@example.com');
-    await userEvent.type(screen.getByPlaceholderText('Password'), 'wrongpass');
+    await userEvent.type(screen.getByLabelText('Email'), 'wrong@example.com');
+    await userEvent.type(screen.getByLabelText('Password'), 'wrongpass');
 
-    // Select the button specifically to avoid conflict with the heading
     await userEvent.click(screen.getByRole('button', { name: 'Sign In' }));
 
     expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
